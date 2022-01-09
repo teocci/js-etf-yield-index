@@ -52,7 +52,6 @@ function calculateRevenue(etf) {
     return etf.price * (etf.yield - etf.ter)
 }
 
-// Driver code
 const etfs = [
     {
         name: "TIGER 부동산인프라고배당",
@@ -138,12 +137,39 @@ let n = etfs.length
 let k = 2
 
 etfs.sort((a, b) => {
-    return calculateRevenue(a) - calculateRevenue(b)
+    return a.yieldRatio() - b.yieldRatio()
 })
 
 function minByGoal(etf, annualGoal) {
     const revenue = calculateRevenue(etf)
     return Math.ceil(annualGoal / revenue)
+}
+
+function minCostToGoal(picks) {
+    etfs.forEach((etf, i) => {
+        // const shares = minByGoal(etf, annualGoal)
+        // console.log({ etf, shares })
+    })
+
+    const n = etfs.length
+    let sum = 0
+    let ans = Number.MAX_VALUE
+
+    let sumYield = 0
+
+    const pool = {}
+
+    etfs.forEach((etf, i) => {
+        pool['ticket'] = etf.yieldRevenue()
+        sumYield += etf.yieldRevenue()
+
+        if (pool.length > picks)
+            sumYield += pool[etf.ticket]
+        if (pool.length === picks)
+            ans = Math.min(ans, sumYield * worker.ratio())
+    })
+
+    return ans
 }
 
 window.onload = () => {
