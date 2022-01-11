@@ -5,11 +5,15 @@ export default class ETF extends Security {
         super(name, ticket)
     }
 
+    tyr() {
+        return this.yield - this.ter
+    }
+
     yieldRatio() {
-        return this.price / (this.yield - this.ter)
+        return this.price / this.tyr()
     }
 
     yieldRevenue() {
-        return this.price * (this.yield - this.ter)
+        return this.price * this.tyr()
     }
 }

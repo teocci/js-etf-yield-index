@@ -1,4 +1,7 @@
 // Function to find the minimum amount to buy
+import ETF from './etf.js'
+import Queue from './queue.js'
+
 function findMinimum(arr, n, k) {
     let res = 0
 
@@ -37,9 +40,9 @@ function minCost(etfs, i, prev, shares) {
     if (ans !== -1) return ans
 
     let etf = etfs[i]
-    ans = minCost(i+1, prev, count, etf)
+    ans = minCost(i + 1, prev, count, etf)
 
-    const cost = calculateRevenue(etf) 
+    const cost = calculateRevenue(etf)
 
     if (etf > etfs[prev]) {
         ans = min(ans, cost + minCost(etfs, i + 1, i, shares + 1))
@@ -52,7 +55,7 @@ function calculateRevenue(etf) {
     return etf.price * (etf.yield - etf.ter)
 }
 
-const etfs = [
+const data = [
     {
         name: "TIGER 부동산인프라고배당",
         code: "329200",
@@ -132,6 +135,16 @@ const etfs = [
     },
 ]
 
+const etfs = []
+
+data.forEach(item => {
+    let etf = new ETF(item.name, item.code)
+    etf.price = item.price
+    etf.yield = item.yield
+    etf.ter = item.ter
+    etfs.push(etf)
+})
+
 const annualGoal = 100000
 let n = etfs.length
 let k = 2
@@ -145,28 +158,25 @@ function minByGoal(etf, annualGoal) {
     return Math.ceil(annualGoal / revenue)
 }
 
-function minCostToGoal(picks) {
+function minCostToGoal(goal, K) {
     etfs.forEach((etf, i) => {
         // const shares = minByGoal(etf, annualGoal)
         // console.log({ etf, shares })
     })
 
-    const n = etfs.length
-    let sum = 0
     let ans = Number.MAX_VALUE
 
     let sumYield = 0
 
-    const pool = {}
-
-    etfs.forEach((etf, i) => {
-        pool['ticket'] = etf.yieldRevenue()
+    const pool = new Queue()
+    etfs.forEach(etf => {
+        pool.enqueue(etf.yieldRevenue())
         sumYield += etf.yieldRevenue()
 
-        if (pool.length > picks)
-            sumYield += pool[etf.ticket]
-        if (pool.length === picks)
-            ans = Math.min(ans, sumYield * worker.ratio())
+        if (pool.length > k)
+            sumYield += pool.dequeue()
+        if (pool.length === k)
+            ans = Math.min(ans, sumYield * etf.ratio())
     })
 
     return ans
@@ -176,6 +186,22 @@ window.onload = () => {
     // document.write(`${findMinimum(etfs, n, k)} ${findMaximum(etfs, n, k)}`)
     etfs.forEach((etf, i) => {
         const shares = minByGoal(etf, annualGoal)
-        console.log({ etf, shares })
+        console.log({etf, shares})
     })
+
+    let q = new Queue()
+    for (let i = 1; i <= 7; i++) {
+        q.enqueue(i)
+    }
+
+    // get the current item at the front of the queue
+    console.log({peek: q.peek()}) // 1
+
+    // get the current length of queue
+    console.log({length: q.length()}) // 7
+
+    // dequeue all elements
+    while (!q.isEmpty()) {
+        console.log({dequeue: q.dequeue()})
+    }
 }
