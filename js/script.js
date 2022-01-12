@@ -59,7 +59,7 @@ const data = [
     {
         name: "TIGER 부동산인프라고배당",
         code: "329200",
-        price: 38975,
+        price: 6010,
         yield: 0.0387,
         ter: 0.0025
     },
@@ -146,27 +146,21 @@ data.forEach(item => {
 })
 
 const annualGoal = 100000
-let n = etfs.length
-let k = 2
+const k = 2
 
 etfs.sort((a, b) => {
-    return a.yieldRatio() - b.yieldRatio()
+    return a.pdr() - b.pdr()
 })
 
-function minByGoal(etf, annualGoal) {
-    const revenue = calculateRevenue(etf)
-    return Math.ceil(annualGoal / revenue)
+function minByGoal(etf, goal) {
+    return Math.ceil(goal / etf.yieldRevenue())
 }
 
 function minCostToGoal(goal, K) {
-    etfs.forEach((etf, i) => {
-        // const shares = minByGoal(etf, annualGoal)
-        // console.log({ etf, shares })
-    })
-
     let ans = Number.MAX_VALUE
 
     let sumYield = 0
+
 
     const pool = new Queue()
     etfs.forEach(etf => {
@@ -186,7 +180,9 @@ window.onload = () => {
     // document.write(`${findMinimum(etfs, n, k)} ${findMaximum(etfs, n, k)}`)
     etfs.forEach((etf, i) => {
         const shares = minByGoal(etf, annualGoal)
-        console.log({etf, shares})
+        const totalPrice = shares * etf.price
+        const annualDividend = shares * etf.dividends()
+        console.log({etf, shares, totalPrice, annualDividend})
     })
 
     let q = new Queue()

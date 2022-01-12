@@ -7,7 +7,29 @@ export default class Security {
         this.ter = null
     }
 
-    calculateRevenue() {
-        return this.price * (this.yield - this.ter)
+    /**
+     * Net yield ratio
+     *
+     * @returns {number}
+     */
+    nyr() {
+        return this.yield - this.ter
+    }
+
+    /**
+     * Price dividend ratio
+     *
+     * @returns {number}
+     */
+    pdr() {
+        return this.price / this.nyr()
+    }
+
+    dividends() {
+        return this.price * this.yield
+    }
+
+    yieldRevenue() {
+        return this.price * this.nyr()
     }
 }
