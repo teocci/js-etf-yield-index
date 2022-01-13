@@ -146,7 +146,7 @@ data.forEach(item => {
 })
 
 const annualGoal = 100000
-const k = 2
+const k = 3
 
 etfs.sort((a, b) => {
     return a.pdr() - b.pdr()
@@ -156,21 +156,42 @@ function minByGoal(etf, goal) {
     return Math.ceil(goal / etf.yieldRevenue())
 }
 
+function minCostToHireWorkers(quality, wage, K) {
+    let n  = quality.length;
+    let workers = Array(n);
+    for (let i=0;i<n;i++) {
+        workers[i] = [wage[i]/quality[i], quality[i]];
+    }
+    workers.sort((a,b)=>a[0]-b[0]===0?a[1]-b[1]: a[0]-b[0]);
+    let qsum = 0, res=Number.MAX_SAFE_INTEGER;
+    let pq = new Queue();
+    for (let i=0;i<workers.length;i++) {
+        qsum+=workers[i][1];
+        pq.enqueue(workers[i][1]);
+        if (pq.size() > K) {
+            qsum-=pq.front().element;
+            pq.dequeue();
+        }
+        if (pq.size()===K) {
+            res = Math.min(res, qsum*workers[i][0])
+        }
+    }
+    return res;
+}
+
 function minCostToGoal(goal, K) {
     let ans = Number.MAX_VALUE
-
     let sumYield = 0
-
 
     const pool = new Queue()
     etfs.forEach(etf => {
         pool.enqueue(etf.yieldRevenue())
         sumYield += etf.yieldRevenue()
 
-        if (pool.length > k)
-            sumYield += pool.dequeue()
-        if (pool.length === k)
-            ans = Math.min(ans, sumYield * etf.ratio())
+        if (pool.length() > k)
+            sumYield -= pool.dequeue()
+        if (pool.length() === k)
+            ans = Math.min(ans, sumYield * etf.pdr())
     })
 
     return ans
@@ -184,6 +205,10 @@ window.onload = () => {
         const annualDividend = shares * etf.dividends()
         console.log({etf, shares, totalPrice, annualDividend})
     })
+
+
+    const minCost = minCostToGoal(annualGoal, k)
+    console.log({minCost})
 
     let q = new Queue()
     for (let i = 1; i <= 7; i++) {
