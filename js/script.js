@@ -1,6 +1,8 @@
 // Function to find the minimum amount to buy
 import ETF from './etf.js'
 import Queue from './queue.js'
+import Heap from './heap.js'
+import MaxHeap from './max-heap.js'
 
 function findMinimum(arr, n, k) {
     let res = 0
@@ -157,23 +159,23 @@ function minByGoal(etf, goal) {
 }
 
 function minCostToHireWorkers(quality, wage, K) {
-    let n  = quality.length;
+    let n = quality.length;
     let workers = Array(n);
-    for (let i=0;i<n;i++) {
-        workers[i] = [wage[i]/quality[i], quality[i]];
+    for (let i = 0; i < n; i++) {
+        workers[i] = [wage[i] / quality[i], quality[i]];
     }
-    workers.sort((a,b)=>a[0]-b[0]===0?a[1]-b[1]: a[0]-b[0]);
-    let qsum = 0, res=Number.MAX_SAFE_INTEGER;
+    workers.sort((a, b) => a[0] - b[0] === 0 ? a[1] - b[1] : a[0] - b[0]);
+    let qsum = 0, res = Number.MAX_SAFE_INTEGER;
     let pq = new Queue();
-    for (let i=0;i<workers.length;i++) {
-        qsum+=workers[i][1];
+    for (let i = 0; i < workers.length; i++) {
+        qsum += workers[i][1];
         pq.enqueue(workers[i][1]);
         if (pq.size() > K) {
-            qsum-=pq.front().element;
+            qsum -= pq.front().element;
             pq.dequeue();
         }
-        if (pq.size()===K) {
-            res = Math.min(res, qsum*workers[i][0])
+        if (pq.size() === K) {
+            res = Math.min(res, qsum * workers[i][0])
         }
     }
     return res;
@@ -195,6 +197,10 @@ function minCostToGoal(goal, K) {
     })
 
     return ans
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
 }
 
 window.onload = () => {
@@ -226,6 +232,16 @@ window.onload = () => {
         console.log({dequeue: q.dequeue()})
     }
 
+    console.log('Heap')
+    const queue = new MaxHeap()
+    for (let i = 1; i <= 7; i++) {
+        const num = getRandomInt(10) + i * 10
+        queue.push(num)
+        console.log({push: num})
+    }
 
-
+    // dequeue all elements
+    while (!queue.empty()) {
+        console.log({pop: queue.pop()})
+    }
 }
