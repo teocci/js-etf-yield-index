@@ -1,111 +1,129 @@
 function defaultComparator(a, b) {
-    return a < b;
+    return a < b
 }
 
 export default class Heap {
     constructor(items, comparator) {
-        this._items = items || [];
-        this._size = this._items.length
-        this._comparator = comparator || defaultComparator
-        this._heapify()
+        this.items = items || []
+        this.comparator = comparator || defaultComparator
+
+        this.heapify()
     }
 
     empty() {
-        return this._size === 0
+        return this.size === 0
     }
 
     pop() {
-        if (this._size === 0) {
-            return;
-        }
+        return this.remove(0)
+    }
 
-        const elt = this._items[0];
+    remove(index) {
+        if (this.size === 0) return
 
-        const lastElt = this._items.pop();
-        this._size--;
+        // swap with last
+        this.swap(index, this.size - 1)
 
-        if (this._size > 0) {
-            this._items[0] = lastElt;
-            this._sinkDown(0);
-        }
+        // remove element
+        const value = this.items.pop()
+        this.sinkDown(index)
 
-        return elt;
+        return value
     }
 
     push(item) {
-        this._items[this._size++] = item;
-        this._bubbleUp(this._size - 1);
+        // push element to the end of the heap
+        this.items.push(item)
+        this.bubbleUp()
     }
 
-    size() {
-        return this._size;
+    set size(len) {
+        this.items.length = len
+    }
+
+    get size() {
+        return this.items.length
     }
 
     peek() {
-        if (this._size === 0) {
-            return;
-        }
+        if (this.size === 0) return
 
-        return this._items[0];
+        return this.items[0]
     }
 
-    _heapify() {
-        for (let index = Math.floor((this._size + 1) / 2); index >= 0; index--) {
-            this._sinkDown(index);
+    /**
+     * Swap elements on the heap
+     * @runtime O(1)
+     * @param {number} a index a
+     * @param {number} b index b
+     */
+    swap(a, b) {
+        [this.items[a], this.items[b]] = [this.items[b], this.items[a]]
+    }
+
+    compareIndex(a, b) {
+        return this.comparator(this.items[a], this.items[b])
+    }
+
+    leftChild(index) {
+        return index * 2 + 1
+    }
+
+    rightChild(index) {
+        return index * 2 + 2
+    }
+
+    parent(index) {
+        return Math.floor((index - 1) / 2)
+    }
+
+    heapify() {
+        for (let index = Math.floor((this.size + 1) / 2); index >= 0; index--) {
+            this.sinkDown(index)
         }
     }
 
-    _bubbleUp(index) {
-        const elt = this._items[index];
+    bubbleUp() {
+        // the index of the element we have just pushed
+        let index = this.size - 1
+
+        const parentIndex = this.parent(index)
         while (index > 0) {
-            const parentIndex = Math.floor((index + 1) / 2) - 1;
-            const parentElt = this._items[parentIndex];
-
             // if parentElt < elt, stop
-            if (this._comparator(parentElt, elt)) {
-                return;
-            }
+            if (this.comparator(parentIndex, index)) return
 
             // swap
-            this._items[parentIndex] = elt;
-            this._items[index] = parentElt;
-            index = parentIndex;
+            this.swap(index, parentIndex)
+
+            index = parentIndex
         }
     }
 
-    _sinkDown(index) {
-        const elt = this._items[index];
-
+    /**
+     * After removal, moves element downwards on the heap, if it's out of order
+     * @runtime O(log n)
+     */
+    sinkDown(index) {
         while (true) {
-            const leftChildIndex = 2 * (index + 1) - 1;
-            const rightChildIndex = 2 * (index + 1);
-            let swapIndex = -1;
+            let curr = index
 
-            if (leftChildIndex < this._size) {
-                const leftChild = this._items[leftChildIndex];
-                if (this._comparator(leftChild, elt)) {
-                    swapIndex = leftChildIndex;
-                }
+            const left = this.leftChild(index)
+            const right = this.rightChild(index)
+            let swapIndex = -1
+
+            if (left < this.size && this.comparator(this.items[swapIndex], this.items[left])) {
+                swapIndex = left
             }
 
-            if (rightChildIndex < this._size) {
-                const rightChild = this._items[rightChildIndex];
-                if (this._comparator(rightChild, elt)) {
-                    if (swapIndex === -1 ||
-                        this._comparator(rightChild, this._items[swapIndex])) {
-                        swapIndex = rightChildIndex;
-                    }
-                }
+            if (right < this.size && this.comparator(this.items[swapIndex], this.items[right])) {
+                swapIndex = right
             }
 
             // if we don't have a swap, stop
-            if (swapIndex === -1) {
-                return;
-            }
+            if (swapIndex === -1) return
 
-            this._items[index] = this._items[swapIndex];
-            this._items[swapIndex] = elt;
-            index = swapIndex;
+            this.swap(curr, swapIndex)
+            curr = swapIndex
         }
     }
 }

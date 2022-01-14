@@ -225,4 +225,7 @@ window.onload = () => {
     while (!q.isEmpty()) {
         console.log({dequeue: q.dequeue()})
     }
+
+
+
 }
